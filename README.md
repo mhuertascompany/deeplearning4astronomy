@@ -6,6 +6,6 @@
 - L: Salle Danjon
 - M: Salle du Conseil
 - X: Salle Danjon
-- J: Morning: IAP Amphitheater
+- J: Morning: IAP Amphitheater //
       Afternoon: Salle de L'Atelier 
 - V: Salle Danjon      
