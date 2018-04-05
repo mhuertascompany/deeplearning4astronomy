@@ -11,4 +11,4 @@
 - V: Salle Danjon      
 
 ## Requirements for training models
-   See [Installation Guidelines](https://github.com/mhuertascompany/deeplearning4astronomy/wiki/Installation_Guidelines)   
+   See [Installation Guidelines](https://github.com/mhuertascompany/deeplearning4astronomy/wiki/Installation-guidelines)   
