@@ -1,11 +1,3 @@
 # deeplearning4astronomycourse
 
-## Requirements
-  - Cuda 9
-  - Python 2.7 or greater
-  - Tensorflow
-  - Keras
-  - Astropy
-  - Scikitlearn
-  
-## Installing Cuda 9
+## 9-13 April 2018 @ Observatoire de Paris
