@@ -9,3 +9,6 @@
 - J: Morning: IAP Amphitheater //
       Afternoon: Salle de L'Atelier 
 - V: Salle Danjon      
+
+## Requirements for training models
+   See    
