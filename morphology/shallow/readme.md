@@ -1,3 +1,5 @@
+# Morphology of SDSS galaxies
+
 The goal of this exercice is to develop a classical machine learning algorithm to build a sample of nearby early-type spirals (Sa-b) in the SDSS. 
 - The training set is made of the detailed visual classifications of [Nair&Abraham2010](http://adsabs.harvard.edu/abs/2010ApJS..186..427N) of ~14.000 SDSS galaxies. 
 Use the TType column.
