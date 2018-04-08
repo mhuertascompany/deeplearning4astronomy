@@ -6,4 +6,4 @@ Use the TType column.
 - All measurements included in the catalog provided can be used (or any other of your choice!).
 - We will give priority to solutions that boost purity, although completeness is also important.
 - The images [jpeg] can be donwnloaded here. The name is  matched to the ID in the catalog.
-- A very simple [jupyter notebook]() using a RF classifier is provided.
+- A very simple [jupyter notebook](https://github.com/mhuertascompany/deeplearning4astronomy/blob/master/morphology/shallow/morph_classical_ML.ipynb) using a RF classifier is provided.
