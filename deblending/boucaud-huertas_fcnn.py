@@ -48,20 +48,22 @@ class ObjectDetector(object):
 
     """
 
-    def __init__(self, batch_size=32, epoch=2, model_check_point=True):
+    def __init__(self, batch_size=32, epoch=2, model_check_point=True,
+                 filename=None):
         self.model_, self.params_model_ = self._build_model()
         self.batch_size = batch_size
         self.epoch = epoch
         self.model_check_point = model_check_point
+        self.filename = filename
 
-    def plot_random_results(self, X_test, y_test, filename):
+    def plot_random_results(self, X_test, y_test):
         idx = np.random.randint(0, len(y_test), size=30)
         X = X_test[idx]
         if X.ndim == 3:
             X = np.expand_dims(X, -1)
         y_true = y_test[idx]
         y_pred = self.model_.predict(X)
-            
+
         fig_size = (8, 10*8)
         fig, ax = plt.subplots(nrows=30, ncols=3, sharex=True, sharey=True, figsize=fig_size)
         for i in range(30):
@@ -73,7 +75,7 @@ class ObjectDetector(object):
             ax[i, 2].imshow(yp, origin='lower')
             for a in ax[i]:
                 a.axis('off')
-        plt.savefig('{}.png'.format(filename))    
+        plt.savefig('{}.png'.format(self.filename))
 
     def fit(self, X, y, pretrained=False):
 
@@ -103,14 +105,13 @@ class ObjectDetector(object):
             validation_steps=ceil(n_val_samples / self.batch_size))
 
     def predict(self, X):
-        Y_p=self.model_.predict(np.expand_dims(X, -1))
-        return Y_p
+        return self.model_.predict(np.expand_dims(X, -1))
 
-    def predict_score(self,X,Y):
+    def predict_score(self, X, Y):
         Y_p=self.model_.predict(np.expand_dims(X, -1))
         s=iou(Y_p,Y)
         return s
-    
+
     ###########################################################################
     # Setup model
 
@@ -152,8 +153,6 @@ class ObjectDetector(object):
         params_model.es_patience = 12
         params_model.es_min_delta = 0.001
 
-        
-
         params_model.reduce_learning_rate = True
         params_model.lr_patience = 5
         params_model.lr_factor = 0.5
@@ -169,7 +168,7 @@ class ObjectDetector(object):
         # load the parameter for the SSD model
         params_model = self._init_params_model()
 
-        model=fcnn_model()    
+        model = fcnn_model()
         optimizer = Adam(lr=params_model.lr)
 
         model.compile(optimizer=optimizer, loss=params_model.keras_loss)
@@ -182,7 +181,7 @@ class ObjectDetector(object):
 
         if self.model_check_point:
             callbacks.append(
-                ModelCheckpoint('./fcnn_weights_best.h5',
+                ModelCheckpoint('./{}_weights_best.h5'format(filename),
                                 monitor='val_loss',
                                 save_best_only=True,
                                 save_weights_only=True,
@@ -207,7 +206,8 @@ class ObjectDetector(object):
                                   verbose=1))
 
         if self.params_model_.tensorboard:
-            callbacks.append(TensorBoard(log_dir="./logs")) 
+            callbacks.append(
+                TensorBoard(log_dir="./logs/{}".format(self.filename)))
 
         return callbacks
 
@@ -219,12 +219,12 @@ def iou(y_true, y_pred):
     intersection = np.sum(y_true * y_pred, axis=AXIS)
     sum_ = np.sum(y_true + y_pred, axis=AXIS)
     jac = (intersection + EPS) / (sum_ - intersection + EPS)
-    
+
     return np.mean(jac)
 
-    
 
-    
+
+
 def fcnn_model():
     input_shape=(128,128,1)
     output_channels=1
@@ -239,8 +239,7 @@ def fcnn_model():
     sigma_noise=0.01
     initialization='he_normal'
     constraint=None
-    
-    
+
     model = Sequential()
     model.add(Conv2D(depth, conv_size0,
                      input_shape=input_shape,
@@ -282,35 +281,11 @@ def read_train_data():
 def read_test_data():
     X_test=np.load("./data/data_test.npy")
     Y_test=np.load("./data/labels_test.npy")
-    return X_test,Y_test   
+    return X_test,Y_test
 
-def plot_results(img, y_true):
-    y_pred = model.predict(np.expand_dims(img, 0))
-    y_true = np.expand_dims(y_true, 0).round()
-    
-    print("IoU:", iou(y_true, y_pred))
-    
-    img = np.squeeze(img)
-    y_true = np.squeeze(y_true)
-    y_pred = np.squeeze(y_pred)
-
-    fig_size = (8, 8)
-    fig, ax = plt.subplots(nrows=2, ncols=2,
-                           sharex=True, sharey=True, figsize=fig_size)
-    ax[0, 0].imshow(img, origin='lower')
-    ax[0, 1].imshow(y_true, origin='lower')
-    ax[1, 1].imshow(y_pred.round(), origin='lower')
-    
-    
-    for axes in ax.flat:
-        axes.axis('off')
 
 ###############################################################################
 # Batch generator
-
-
-
-
 
 class BatchGeneratorBuilder(object):
     """A batch generator builder for generating batches of images on the fly.
@@ -412,26 +387,29 @@ class BatchGeneratorBuilder(object):
 
                 yield np.array(X_batch), np.array(y_batch)
 
+
+# -------
+
+filename = os.path.splitext(os.path.basename(__file__))[0]
+
 print("Reading...")
 X_train, Y_train = read_train_data()
 X_test, Y_test = read_test_data()
 
-obj = ObjectDetector(epoch=1, model_check_point=False)
+obj = ObjectDetector(epoch=1, model_check_point=False, filename=filename)
 print("Training...")
-obj.fit(X_train,Y_train)
+obj.fit(X_train, Y_train)
 print("Testing...")
 
-score = obj.predict_score(X_test.squeeze(),Y_test)
-filename = os.path.basename(__file__)
-binome, submission =filename.split('_')
-obj.plot_random_results(X_test,Y_test,filename)
+score = obj.predict_score(X_test.squeeze(), Y_test)
 
-submission = submission[:-3]
+obj.plot_random_results(X_test, Y_test)
 
+binome, submission = filename.split('_')
+submission = submission
 scoreline = "{}\t{}\t{}".format(binome, submission, score)
 
 print(scoreline)
 
 with open('results.txt', 'a') as f:
     print(scoreline, file=f)
-
