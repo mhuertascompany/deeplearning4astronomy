@@ -105,12 +105,18 @@ class ObjectDetector(object):
             validation_steps=ceil(n_val_samples / self.batch_size))
 
     def predict(self, X):
-        return self.model_.predict(np.expand_dims(X, -1))
+        if X.ndim == 3:
+            X = np.expand_dims(X, -1)
+        return self.model_.predict(X)
 
-    def predict_score(self, X, Y):
-        Y_p=self.model_.predict(np.expand_dims(X, -1))
-        s=iou(Y_p,Y)
-        return s
+    def predict_score(self, X, y_true):
+        if X.ndim == 3:
+            X = np.expand_dims(X, -1)
+        if y_true.ndim == 3:
+            y_true = np.expand_dims(y_true, -1)
+
+        y_pred = self.model_.predict(X)
+        return iou(y_true, y_pred)
 
     ###########################################################################
     # Setup model
@@ -175,13 +181,12 @@ class ObjectDetector(object):
 
         return model, params_model
 
-
     def _build_callbacks(self):
         callbacks = []
 
         if self.model_check_point:
             callbacks.append(
-                ModelCheckpoint('./{}_weights_best.h5'format(filename),
+                ModelCheckpoint('./{}_weights_best.h5'.format(filename),
                                 monitor='val_loss',
                                 save_best_only=True,
                                 save_weights_only=True,
@@ -273,15 +278,17 @@ def fcnn_model():
 
     return model
 
+
 def read_train_data():
-    X_train=np.load("./data/data_train.npy")
-    Y_train=np.load("./data/labels_train.npy")
-    return X_train.squeeze(),Y_train.squeeze()
+    X_train = np.load("./data/data_train.npy")
+    Y_train = np.load("./data/labels_train.npy")
+    return X_train.squeeze(), Y_train.squeeze()
+
 
 def read_test_data():
-    X_test=np.load("./data/data_test.npy")
-    Y_test=np.load("./data/labels_test.npy")
-    return X_test,Y_test
+    X_test = np.load("./data/data_test.npy")
+    Y_test = np.load("./data/labels_test.npy")
+    return X_test, Y_test
 
 
 ###############################################################################
@@ -401,12 +408,11 @@ print("Training...")
 obj.fit(X_train, Y_train)
 print("Testing...")
 
-score = obj.predict_score(X_test.squeeze(), Y_test)
+score = obj.predict_score(X_test, Y_test)
 
 obj.plot_random_results(X_test, Y_test)
 
 binome, submission = filename.split('_')
-submission = submission
 scoreline = "{}\t{}\t{}".format(binome, submission, score)
 
 print(scoreline)
