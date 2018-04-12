@@ -6,14 +6,11 @@ import numpy as np
 
 from sklearn.utils import Bunch
 
-from keras.models import Sequential
-from keras.layers import Conv2D, Dropout,Input, MaxPooling2D,concatenate
+from keras.models import Sequential, Model
+from keras.layers import Conv2D, Dropout, Input, MaxPooling2D, concatenate, Conv2DTranspose
 from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau, TensorBoard
 from keras.optimizers import Adam
 from keras.layers.noise import GaussianNoise
-from keras.models import Model
-from keras.layers import Input, concatenate, Conv2D, MaxPooling2D, Conv2DTranspose
-from keras.layers import Dropout
 from keras.optimizers import Adam, SGD
 from keras import backend as K
 from keras.layers import UpSampling2D
@@ -22,6 +19,7 @@ import matplotlib.pyplot as plt
 import os
 import pdb
 from keras.layers import AtrousConvolution2D
+
 
 class ObjectDetector(object):
     """Object detector.
@@ -64,8 +62,8 @@ class ObjectDetector(object):
         y_true = y_test[idx]
         y_pred = self.model_.predict(X)
 
-        fig_size = (8, 10*8)
-        fig, ax = plt.subplots(nrows=30, ncols=3, sharex=True, sharey=True, figsize=fig_size)
+        fig_size = (10, 10 * 8)
+        fig, ax = plt.subplots(nrows=30, ncols=4, sharex=True, sharey=True, figsize=fig_size)
         for i in range(30):
             img = np.squeeze(X[i])
             yt = np.squeeze(y_true[i])
@@ -73,6 +71,7 @@ class ObjectDetector(object):
             ax[i, 0].imshow(img, origin='lower')
             ax[i, 1].imshow(yt, origin='lower')
             ax[i, 2].imshow(yp, origin='lower')
+            ax[i, 3].imshow(yp.round(), origin='lower')
             for a in ax[i]:
                 a.axis('off')
         plt.savefig('{}.png'.format(self.filename))
@@ -96,13 +95,19 @@ class ObjectDetector(object):
         callbacks = self._build_callbacks()
 
         # fit the model
-        self.model_.fit_generator(
+        history = self.model_.fit_generator(
             generator=train_generator,
             steps_per_epoch=ceil(n_train_samples / self.batch_size),
             epochs=self.epoch,
             callbacks=callbacks,
             validation_data=val_generator,
             validation_steps=ceil(n_val_samples / self.batch_size))
+
+        plt.plot(history.epoch, history.history['loss'], label='loss')
+        plt.plot(history.epoch, history.history['val_loss'], label='val_loss')
+        plt.title('Training performance')
+        plt.legend()
+        plt.savefig("{}_train_history.png".format(self.filename))
 
     def predict(self, X):
         if X.ndim == 3:
@@ -403,7 +408,7 @@ print("Reading...")
 X_train, Y_train = read_train_data()
 X_test, Y_test = read_test_data()
 
-obj = ObjectDetector(epoch=1, model_check_point=False, filename=filename)
+obj = ObjectDetector(epoch=1, model_check_point=True, filename=filename)
 print("Training...")
 obj.fit(X_train, Y_train)
 print("Testing...")
