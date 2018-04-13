@@ -437,5 +437,5 @@ if os.environ.get('MARC_GPU_SERVER', 0):
     upload_delete = upload + " --delete"
 
     for f in files:
-        subprocess.run(upload_delete.format(f))
-    subprocess.run(upload.format('results.txt'))
+        subprocess.run(upload_delete.format(f), shell=True)
+    subprocess.run(upload.format('results.txt'), shell=True)
