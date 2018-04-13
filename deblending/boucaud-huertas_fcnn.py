@@ -1,24 +1,19 @@
-from __future__ import division
+from __future__ import division, print_function
 
+import os
 from math import ceil
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 from sklearn.utils import Bunch
 
 from keras.models import Sequential, Model
-from keras.layers import Conv2D, Dropout, Input, MaxPooling2D, concatenate, Conv2DTranspose
+from keras.layers import (Conv2D, Dropout, Input, MaxPooling2D, concatenate,
+                          Conv2DTranspose, UpSampling2D, AtrousConvolution2D)
 from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau, TensorBoard
 from keras.optimizers import Adam
 from keras.layers.noise import GaussianNoise
-from keras.optimizers import Adam, SGD
-from keras import backend as K
-from keras.layers import UpSampling2D
-from astropy.io import fits
-import matplotlib.pyplot as plt
-import os
-import pdb
-from keras.layers import AtrousConvolution2D
 
 
 class ObjectDetector(object):
@@ -46,35 +41,14 @@ class ObjectDetector(object):
 
     """
 
-    def __init__(self, batch_size=32, epoch=2, model_check_point=True,
-                 filename=None):
+    def __init__(self, batch_size=32, epoch=10, model_check_point=True,
+                 filename=None, seed=42):
         self.model_, self.params_model_ = self._build_model()
         self.batch_size = batch_size
         self.epoch = epoch
         self.model_check_point = model_check_point
         self.filename = filename
-
-    def plot_random_results(self, X_test, y_test):
-        idx = np.random.randint(0, len(y_test), size=30)
-        X = X_test[idx]
-        if X.ndim == 3:
-            X = np.expand_dims(X, -1)
-        y_true = y_test[idx]
-        y_pred = self.model_.predict(X)
-
-        fig_size = (10, 10 * 8)
-        fig, ax = plt.subplots(nrows=30, ncols=4, sharex=True, sharey=True, figsize=fig_size)
-        for i in range(30):
-            img = np.squeeze(X[i])
-            yt = np.squeeze(y_true[i])
-            yp = np.squeeze(y_pred[i])
-            ax[i, 0].imshow(img, origin='lower')
-            ax[i, 1].imshow(yt, origin='lower')
-            ax[i, 2].imshow(yp, origin='lower')
-            ax[i, 3].imshow(yp.round(), origin='lower')
-            for a in ax[i]:
-                a.axis('off')
-        plt.savefig('{}.png'.format(self.filename))
+        self.seed = seed
 
     def fit(self, X, y, pretrained=False):
 
@@ -103,11 +77,17 @@ class ObjectDetector(object):
             validation_data=val_generator,
             validation_steps=ceil(n_val_samples / self.batch_size))
 
-        plt.plot(history.epoch, history.history['loss'], label='loss')
-        plt.plot(history.epoch, history.history['val_loss'], label='val_loss')
-        plt.title('Training performance')
-        plt.legend()
-        plt.savefig("{}_train_history.png".format(self.filename))
+        self.plot_history(history)
+
+    @staticmethod
+    def iou(y_true, y_pred):
+        EPS = np.finfo(float).eps
+        AXIS = (1, 2, 3)
+        intersection = np.sum(y_true * y_pred, axis=AXIS)
+        sum_ = np.sum(y_true + y_pred, axis=AXIS)
+        jac = (intersection + EPS) / (sum_ - intersection + EPS)
+
+        return np.mean(jac)
 
     def predict(self, X):
         if X.ndim == 3:
@@ -121,7 +101,38 @@ class ObjectDetector(object):
             y_true = np.expand_dims(y_true, -1)
 
         y_pred = self.model_.predict(X)
-        return iou(y_true, y_pred)
+
+        return self.iou(y_true, y_pred)
+
+    def plot_random_results(self, X_test, y_test):
+        np.random.seed(self.seed)
+        idx = np.random.randint(0, len(y_test), size=30)
+        X = X_test[idx]
+        if X.ndim == 3:
+            X = np.expand_dims(X, -1)
+        y_true = y_test[idx]
+        y_pred = self.model_.predict(X)
+
+        fig_size = (10, 10 * 8)
+        fig, ax = plt.subplots(nrows=30, ncols=4, sharex=True, sharey=True, figsize=fig_size)
+        for i in range(30):
+            img = np.squeeze(X[i])
+            yt = np.squeeze(y_true[i])
+            yp = np.squeeze(y_pred[i])
+            ax[i, 0].imshow(img, origin='lower')
+            ax[i, 1].imshow(yt, origin='lower')
+            ax[i, 2].imshow(yp, origin='lower')
+            ax[i, 3].imshow(yp.round(), origin='lower')
+            for a in ax[i]:
+                a.axis('off')
+        plt.savefig('{}.png'.format(self.filename))
+
+    def plot_history(self, history):
+        plt.semilogy(history.epoch, history.history['loss'], label='loss')
+        plt.semilogy(history.epoch, history.history['val_loss'], label='val_loss')
+        plt.title('Training performance')
+        plt.legend()
+        plt.savefig("{}_train_history.png".format(self.filename))
 
     ###########################################################################
     # Setup model
@@ -222,33 +233,20 @@ class ObjectDetector(object):
         return callbacks
 
 
-EPS = 1e-12
-AXIS = (1, 2, 3)
-
-def iou(y_true, y_pred):
-    intersection = np.sum(y_true * y_pred, axis=AXIS)
-    sum_ = np.sum(y_true + y_pred, axis=AXIS)
-    jac = (intersection + EPS) / (sum_ - intersection + EPS)
-
-    return np.mean(jac)
-
-
-
-
 def fcnn_model():
-    input_shape=(128,128,1)
-    output_channels=1
-    depth=16
-    n_layers=6
-    conv_size0=(3,3)
-    conv_size=(3,3)
-    last_conv_size=(3,3)
-    activation='relu'
-    last_activation='sigmoid'
-    dropout_rate=0
-    sigma_noise=0.01
-    initialization='he_normal'
-    constraint=None
+    input_shape = (128, 128, 1)
+    output_channels = 1
+    depth = 16
+    n_layers = 6
+    conv_size0 = (3, 3)
+    conv_size = (3, 3)
+    last_conv_size = (3, 3)
+    activation = 'relu'
+    last_activation = 'sigmoid'
+    dropout_rate = 0
+    sigma_noise = 0.01
+    initialization = 'he_normal'
+    constraint = None
 
     model = Sequential()
     model.add(Conv2D(depth, conv_size0,
@@ -400,7 +398,7 @@ class BatchGeneratorBuilder(object):
                 yield np.array(X_batch), np.array(y_batch)
 
 
-# -------
+################
 
 filename = os.path.splitext(os.path.basename(__file__))[0]
 
@@ -424,3 +422,20 @@ print(scoreline)
 
 with open('results.txt', 'a') as f:
     print(scoreline, file=f)
+
+if os.environ.get('MARC_GPU_SERVER', 0):
+    import subprocess
+
+    FOLDER = "1JcHPdGCaF0FTm8FGKzXSIE670jlK9fJt"
+    files = [
+        "{}_weights_best.h5".format(filename),
+        "{}_train_history.png".format(filename),
+        "{}.png".format(filename)
+    ]
+
+    upload = "gdrive upload --name {} --parent %s" % FOLDER
+    upload_delete = upload + " --delete"
+
+    for f in files:
+        subprocess.run(upload_delete.format(f))
+    subprocess.run(upload.format('results.txt'))
