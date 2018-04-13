@@ -433,7 +433,7 @@ if os.environ.get('MARC_GPU_SERVER', 0):
         "{}.png".format(filename)
     ]
 
-    upload = "gdrive upload --name {} --parent %s" % FOLDER
+    upload = "gdrive upload --parent %s {}" % FOLDER
     upload_delete = upload + " --delete"
 
     for f in files:
