@@ -433,9 +433,8 @@ if os.environ.get('MARC_GPU_SERVER', 0):
         "{}.png".format(filename)
     ]
 
-    upload = "gdrive upload --parent %s {}" % FOLDER
-    upload_delete = upload + " --delete"
-
+    upload_delete = "gdrive upload --parent %s {} --delete" % FOLDER
+    update = "gdrive update --parent %s {}" % FOLDER
     for f in files:
         subprocess.run(upload_delete.format(f), shell=True)
-    subprocess.run(upload.format('results.txt'), shell=True)
+    subprocess.run(update.format('results.txt'), shell=True)
