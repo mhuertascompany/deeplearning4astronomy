@@ -3,6 +3,8 @@
 ## 25-29 March 2019 @ Observatoire de Paris
 Main entrance is at 77 Av. Denfert Rochereau 
 
+This is the main page for the course "Intelligence artificielle pour l'astrophysique à l'époque du big-data" at the Ecole Doctorale ED-127. The  
+
 ## Location
 - M: Morning: Salle J.F Denisse (Observatoire)
      Afternoon: Salle du Conseil (IAP) 
