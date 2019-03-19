@@ -3,7 +3,7 @@
 ## 25-29 March 2019 @ Observatoire de Paris
 Main entrance is at 77 Av. Denfert Rochereau 
 
-This is the main page for the course "Intelligence artificielle pour l'astrophysique à l'époque du big-data" at the Ecole Doctorale ED-127. The  
+This is the main page for the course "Intelligence artificielle pour l'astrophysique à l'époque du big-data" at the Ecole Doctorale ED-127. The course will consist of lecutres in the mornings followed bu tuorial sessions in the afternoons.
 
 ## Location
 - M: Morning: Salle J.F Denisse (Observatoire)
@@ -16,7 +16,15 @@ This is the main page for the course "Intelligence artificielle pour l'astrophys
 - F: Morning: Salle J.F. Denisse 
      Afternoon: Salle des Séminaires 
 
+## Topics that will be covered
+- Introudction to classical supervised machine learning (RFs, SVMs, ANNs)
+- Supervised deep learning: Convolutional Neural Networks
+- Encoder-Decoders
+- Introduction to unsupervised machine learning (clustering, dimensionality reduction)
+- Generative Models (VAEs, GANs). I
+
 ## Requirements for the tutorials
+   Please set up your environemnt before starting the course.
    See [Installation Guidelines](https://github.com/aboucaud/deeplearning4astro_labs_2019)   
    
 ## Slack channel
