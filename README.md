@@ -25,6 +25,6 @@ This is the main page for the course "Intelligence artificielle pour l'astrophys
 
 ## Requirements for the tutorials
    Please set up your environemnt before starting the course.
-   See [Installation Guidelines](https://github.com/aboucaud/deeplearning4astro_labs_2019)   
+   See [Installation Guidelines](https://github.com/aboucaud/deeplearning4astro_labs_2019) and follow steps 1 and 2 (+ 3 if you have an Nvidia GPU)
    
 
