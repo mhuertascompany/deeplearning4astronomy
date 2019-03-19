@@ -21,7 +21,7 @@ This is the main page for the course "Intelligence artificielle pour l'astrophys
 - Supervised deep learning: Convolutional Neural Networks
 - Encoder-Decoders
 - Introduction to unsupervised machine learning (clustering, dimensionality reduction)
-- Generative Models (VAEs, GANs). I
+- Generative Models (VAEs, GANs).
 
 ## Requirements for the tutorials
    Please set up your environemnt before starting the course.
