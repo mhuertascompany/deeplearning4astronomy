@@ -1,14 +1,17 @@
-# deeplearning4astronomycourse
+# deeplearning4astronomycourse -  Intelligence artificielle pour l'astrophysique à l'époque du big-data 
 
-## 9-13 April 2018 @ Observatoire de Paris
+## 25-29 March 2019 @ Observatoire de Paris
 
 ## Location
-- L: Salle Danjon
-- M: Salle du Conseil
-- X: Salle Danjon
-- J: Morning: IAP Amphitheater //
-      Afternoon: Salle de L'Atelier 
-- V: Salle Danjon      
+- M: Morning: Salle J.F Denisse (Observatoire)
+     Afternoon: Salle TP (IAP) 
+- Tu: Morning: Salle J. F. Denisse (Observatoire)
+      Afternoon: Salle Danjon (Observatoire)
+- W: Salle Danjon (Observatoire)
+- Th: Morning: Salle des Séminaires (IAP) //
+      Afternoon: Salle J.F. Denisse (Observatoire) 
+- F: Morning: Salle J.F. Denisse 
+     Afternoon: Salle des Séminaires 
 
 ## Requirements for the course
    See [Installation Guidelines](https://github.com/mhuertascompany/deeplearning4astronomy/wiki/Installation-guidelines)   
