@@ -27,5 +27,4 @@ This is the main page for the course "Intelligence artificielle pour l'astrophys
    Please set up your environemnt before starting the course.
    See [Installation Guidelines](https://github.com/aboucaud/deeplearning4astro_labs_2019)   
    
-## Slack channel
-   Please, join the [Slack channel](https://bit.ly/2IxS0RC) for live discussions / info sharing
+
