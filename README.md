@@ -1,4 +1,4 @@
-# deeplearning4astronomy ourse -  Intelligence artificielle pour l'astrophysique à l'époque du big-data 
+# deeplearning4astronomy Course -  Intelligence artificielle pour l'astrophysique à l'époque du big-data 
 
 ## 25-29 March 2019 @ Observatoire de Paris
 Main entrance is at 77 Av. Denfert Rochereau 
